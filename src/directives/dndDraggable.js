@@ -1,5 +1,12 @@
-module.directive('dndDraggable', ['$timeout', '$parse', '$http', '$compile', '$q', '$templateCache', 'EventEmitter',
-function ($timeout, $parse, $http, $compile, $q, $templateCache, EventEmitter) {
+module.directive('dndDraggable', ['$timeout', '$parse', '$http', '$compile', '$q', '$templateCache', 'EventEmitter', 'EventsService',
+function ($timeout, $parse, $http, $compile, $q, $templateCache, EventEmitter, Events) {
+  
+    var zoom = 100;//in percent
+    if (Events && Events.$on) {
+      Events.$on('zoom', function(_zoom) {
+        zoom = _zoom;
+      });
+    }
 
     var ElementTarget = (function () {
 
@@ -40,10 +47,10 @@ function ($timeout, $parse, $http, $compile, $q, $templateCache, EventEmitter) {
                 var axis = this.api.getRelBorderedAxis(this.borderOffset);
 
                 if (!this.start) {
-                    this.start = new Point(this.element.dndStyleRect()).minus(axis);
+                    this.start = new Point(this.element.dndStyleRect()).minus(axis.scale(100/zoom));
                 }
 
-                var position = new Point(this.start).plus(axis);
+                var position = new Point(this.start).plus(axis.scale(100/zoom));
 
                 this.rect ? this.rect.update( position.getAsCss() ) : this.element.dndCss( position.getAsCss() );
             },
