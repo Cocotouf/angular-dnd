@@ -1863,7 +1863,19 @@ function ($timeout, $parse, $http, $compile, $q, $templateCache, EventEmitter, E
         var dragCallback = $parse(attrs.dndOnDrag);
         var dragendCallback = $parse(attrs.dndOnDragend);
         var draggable = opts.helper ? new HelperTarget(element, opts.helper, scope) : new ElementTarget(element, rect);
-        var started, handle = opts.handle ? element[0].querySelector(opts.handle) : '';
+        var started, handle = opts.handle ? element[0].querySelectorAll(opts.handle) : '';
+
+        function isHandler(handle, target) {
+          if (!handle.length) {
+            return handle === target;
+          }
+          for (var i = 0; i < handle.length; i++) {
+            if (handle[i] === target) {
+              return true;
+            }
+          }
+          return false;
+        }
 
         function dragstart(api) {
             started = false;
@@ -1873,7 +1885,7 @@ function ($timeout, $parse, $http, $compile, $q, $templateCache, EventEmitter, E
             enabled = enabled === undefined || enabled;
 
             // если draggable элемент выключен - отмечаем элемент как "не цель курсора"
-            if (!enabled || (handle && handle !== api.getEvent().target)) {
+            if (!enabled || (handle && !isHandler(handle, api.getEvent().target))) {
                 api.unTarget();
             }
 
